@@ -6,7 +6,29 @@
 - 보안으로 인해 디버깅 할 수 있는 스마트폰이 제한적이다 보니 현상 재현 및 원인 파악이 어려운데 로그가 있으면 추적이 쉬워짐
 
 # How To
-- 이
+- settings.gradle
+```gradle
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' } // add line
+    }
+}
+```
+
+- gradle app_level
+```gradle
+dependencies {
+    implementation 'com.github.cheonjoosung:Android-Floating-Logger:v0.0.1' // need version tag 
+}
+```
+
+- 앱
+```kotlin
+val logger = FloatingLogger()
+logger.init(this) // AppCompatActivity need when init
+```
 
 ## Stack & Skill (스택 기술)
 - Kotlin & Android
