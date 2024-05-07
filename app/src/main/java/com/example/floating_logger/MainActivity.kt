@@ -8,7 +8,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.floating_logger.databinding.ActivityMainBinding
-import com.js.floatinglooger.Test
 
 class MainActivity : AppCompatActivity() {
 
