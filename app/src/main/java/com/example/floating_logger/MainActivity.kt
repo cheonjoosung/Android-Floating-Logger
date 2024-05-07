@@ -8,6 +8,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.floating_logger.databinding.ActivityMainBinding
+import com.js.floatinglooger.FloatingLogger
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        val test = Test()
-        test.showToast(this, "Library 연동 OK")
+        val logger = FloatingLogger()
+        logger.init(this)
     }
 }

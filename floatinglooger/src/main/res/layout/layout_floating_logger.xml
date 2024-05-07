@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="floating"
+        android:src="@drawable/baseline_adb_24"
+        android:theme="@style/Theme.MaterialComponents"
+        app:backgroundTint="#FFC527"
+        app:maxImageSize="36dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/floatingExpandLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#4D4B4B4B"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/iconConstraintLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/logSearchView"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/baseline_view_list_24"
+                android:backgroundTint="#ffffff"
+                android:contentDescription="목록"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/minimizeImageButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/baseline_minimize_24"
+                android:backgroundTint="#ffffff"
+                android:contentDescription="minimize"
+                app:layout_constraintBottom_toBottomOf="@id/logSearchView"
+                app:layout_constraintEnd_toStartOf="@id/clearImageButton"
+                app:layout_constraintTop_toTopOf="@id/logSearchView" />
+
+            <ImageButton
+                android:id="@+id/clearImageButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/baseline_delete_24"
+                android:backgroundTint="#ffffff"
+                android:contentDescription="delete"
+                app:layout_constraintBottom_toBottomOf="@id/logSearchView"
+                app:layout_constraintEnd_toStartOf="@id/closeImageButton"
+                app:layout_constraintTop_toTopOf="@id/logSearchView" />
+
+            <ImageButton
+                android:id="@+id/closeImageButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/baseline_close_24"
+                android:backgroundTint="#ffffff"
+                android:contentDescription="exit"
+                app:layout_constraintBottom_toBottomOf="@id/logSearchView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/logSearchView" />
+
+            <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="300dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/logSearchView">
+
+                <TextView
+                    android:id="@+id/loggerTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:padding="8dp"
+                    android:textColor="#ffffff"
+                    android:textSize="16dp" />
+
+            </ScrollView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

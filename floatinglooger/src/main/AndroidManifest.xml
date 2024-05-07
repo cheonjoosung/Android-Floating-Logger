@@ -7,8 +7,7 @@
         <service
             android:name=".FloatingLoggerService"
             android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.SYSTEM_ALERT_WINDOW" />
+            android:exported="true" />
     </application>
 
 </manifest>

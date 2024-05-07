@@ -47,6 +47,7 @@ class FloatingLogger {
         Log.e(tag, "startFloatingLoggerService() Called")
 
         Intent(context, FloatingLoggerService::class.java).also {
+            Log.e(tag, "????????")
             context.startService(it)
         }
     }
