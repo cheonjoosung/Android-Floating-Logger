@@ -1,4 +1,4 @@
-package com.js.floatinglooger
+package com.js.floatinglogger
 
 import org.junit.Test
 

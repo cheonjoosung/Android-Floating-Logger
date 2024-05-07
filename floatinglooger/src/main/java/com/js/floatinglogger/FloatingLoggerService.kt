@@ -1,4 +1,4 @@
-package com.js.floatinglooger
+package com.js.floatinglogger
 
 import android.annotation.SuppressLint
 import android.graphics.PixelFormat
@@ -14,7 +14,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.js.floatinglooger.R
+import com.js.floatinglogger.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,7 +30,6 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import com.js.floatinglooger.dp
 
 class FloatingLoggerService : Service() {
 
