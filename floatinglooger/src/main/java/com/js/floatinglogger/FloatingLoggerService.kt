@@ -1,9 +1,12 @@
 package com.js.floatinglogger
 
 import android.annotation.SuppressLint
+import android.app.Service
+import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -14,7 +17,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.js.floatinglogger.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,11 +28,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.math.abs
 
-import android.app.Service
-import android.content.Intent
-import android.os.IBinder
-import android.util.Log
-
 class FloatingLoggerService : Service() {
 
 
@@ -39,26 +36,31 @@ class FloatingLoggerService : Service() {
     private lateinit var windowManager: WindowManager
 
     private lateinit var floatingView: View
-
     private lateinit var fab: FloatingActionButton
     private lateinit var floatingExpandLayout: ConstraintLayout
 
     private lateinit var params: WindowManager.LayoutParams
 
-    private val CLICK_DRAG_TOLERANCE = 10f
-
     private var isFabOpen = false
 
+    private val CLICK_DRAG_TOLERANCE = 10f
+
     private var layoutFlag: Int = 0
+
+    private val pid = android.os.Process.myPid()
+    private val commandArray = mutableListOf("logcat", "-v", "time", "--pid=$pid")
+    private val logcat: Process = Runtime.getRuntime().exec(commandArray.toTypedArray())
+    private val br = BufferedReader(InputStreamReader(logcat.inputStream), 4 * 1024)
+    private val separator = System.getProperty("line.separator")
+
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
 
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        Log.e(tag, "start?")
-
         initFloatingWindowView()
 
         return super.onStartCommand(intent, flags, startId)
@@ -112,17 +114,20 @@ class FloatingLoggerService : Service() {
 
         scope.launch {
             getData().collect { str ->
-                val newText = loggerTextView.text.toString() + "\n" + str
                 val handler = Handler(Looper.getMainLooper())
                 handler.post {
-                    loggerTextView.text = newText
+                    loggerTextView.append("\n$str")
                 }
             }
         }
     }
 
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
+    private fun getData(): Flow<String> = flow {
+        var line = ""
+        while (br.readLine().also { line = it } != null) {
+            emit(line + separator)
+        }
+    }.flowOn(Dispatchers.IO)
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initFabTouchEvent() {
@@ -257,16 +262,3 @@ class FloatingLoggerService : Service() {
     }
 }
 
-fun getData(): Flow<String> = flow {
-    var line = ""
-    while (br.readLine().also { line = it } != null) {
-        emit(line + separator)
-    }
-}.flowOn(Dispatchers.IO)
-
-private var isInit = false
-private val pid = android.os.Process.myPid()
-private val commandArray = mutableListOf("logcat", "-v", "time", "--pid=$pid")
-private val logcat: Process = Runtime.getRuntime().exec(commandArray.toTypedArray())
-private val br = BufferedReader(InputStreamReader(logcat.inputStream), 4 * 1024)
-private val separator = System.getProperty("line.separator")
