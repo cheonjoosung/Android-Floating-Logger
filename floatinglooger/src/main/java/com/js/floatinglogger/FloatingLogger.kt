@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -19,27 +20,31 @@ class FloatingLogger {
     }
 
     private fun overlayPermissionCheck(context: AppCompatActivity) {
-        if (Settings.canDrawOverlays(context)) {
-            startFloatingLoggerService(context)
-        } else {
-            Toast.makeText(context, "Overlay Permission Needed", Toast.LENGTH_SHORT).show()
-            Log.e(tag, "package=${context.packageName}")
-            Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:${context.packageName}")
-            ).apply {
-                context.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                    if (Settings.canDrawOverlays(context)) {
-                        startFloatingLoggerService(context)
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Overlay Permission Not Granted",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }.launch(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.canDrawOverlays(context)) {
+                startFloatingLoggerService(context)
+            } else {
+                Toast.makeText(context, "Overlay Permission Needed", Toast.LENGTH_SHORT).show()
+                Log.e(tag, "package=${context.packageName}")
+                Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${context.packageName}")
+                ).apply {
+                    context.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                        if (Settings.canDrawOverlays(context)) {
+                            startFloatingLoggerService(context)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Overlay Permission Not Granted",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }.launch(this)
+                }
             }
+        } else {
+            startFloatingLoggerService(context)
         }
     }
 
@@ -47,7 +52,6 @@ class FloatingLogger {
         Log.e(tag, "startFloatingLoggerService() Called")
 
         Intent(context, FloatingLoggerService::class.java).also {
-            Log.e(tag, "????????")
             context.startService(it)
         }
     }
