@@ -9,67 +9,72 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 
-class FloatingLogger {
+class FloatingLogger(private val activity: AppCompatActivity) {
 
     private val tag: String = javaClass.simpleName
 
-    fun init(context: AppCompatActivity) {
-        overlayPermissionCheck(context)
+    @RequiresApi(Build.VERSION_CODES.M)
+    private val launcher =
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (Settings.canDrawOverlays(activity)) {
+                startFloatingLoggerService()
+            } else {
+                Toast.makeText(
+                    activity,
+                    "Overlay Permission Not Granted",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+    fun init() {
+        overlayPermissionCheck()
     }
 
-    private fun overlayPermissionCheck(context: AppCompatActivity) {
+    private fun overlayPermissionCheck() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (Settings.canDrawOverlays(context)) {
-                startFloatingLoggerService(context)
+            if (Settings.canDrawOverlays(activity)) {
+                startFloatingLoggerService()
             } else {
-                Toast.makeText(context, "Overlay Permission Needed", Toast.LENGTH_SHORT).show()
-                Log.e(tag, "package=${context.packageName}")
+                Toast.makeText(activity, "Overlay Permission Needed", Toast.LENGTH_SHORT).show()
+                Log.e(tag, "package=${activity.packageName}")
                 Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:${context.packageName}")
+                    Uri.parse("package:${activity.packageName}")
                 ).apply {
-                    context.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                        if (Settings.canDrawOverlays(context)) {
-                            startFloatingLoggerService(context)
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Overlay Permission Not Granted",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }.launch(this)
+                    launcher.launch(this)
                 }
             }
         } else {
-            startFloatingLoggerService(context)
+            startFloatingLoggerService()
         }
     }
 
-    private fun startFloatingLoggerService(context: AppCompatActivity) {
+    private fun startFloatingLoggerService() {
         Log.e(tag, "startFloatingLoggerService() Called")
 
-        Intent(context, FloatingLoggerService::class.java).also {
-            context.startService(it)
+        Intent(activity, FloatingLoggerService::class.java).also {
+            activity.startService(it)
         }
     }
 
-    private fun stopFloatingLoggerService(context: AppCompatActivity) {
+    private fun stopFloatingLoggerService() {
         Log.e(tag, "stopFloatingLoggerService() Called")
 
-        if (!isServiceRunningOnBackground(context)) {
-            Intent(context, FloatingLoggerService::class.java).also {
-                context.stopService(it)
+        if (!isServiceRunningOnBackground()) {
+            Intent(activity, FloatingLoggerService::class.java).also {
+                activity.stopService(it)
             }
         }
     }
 
-    private fun isServiceRunningOnBackground(context: AppCompatActivity): Boolean {
+    private fun isServiceRunningOnBackground(): Boolean {
         Log.e(tag, "isServiceORunningOnBackground()")
 
-        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val manager = activity.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 
         val runningProcesses: List<ActivityManager.RunningAppProcessInfo> =
             manager.runningAppProcesses
@@ -78,7 +83,7 @@ class FloatingLogger {
             if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
                 for (activeProcess in processInfo.pkgList) {
                     Log.e(tag, "packageName : $activeProcess")
-                    if (activeProcess == context.packageName) {
+                    if (activeProcess == activity.packageName) {
                         return false
                     }
                 }

@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        val logger = FloatingLogger()
-        logger.init(this)
+        val logger = FloatingLogger(this)
+        logger.init()
     }
 }
