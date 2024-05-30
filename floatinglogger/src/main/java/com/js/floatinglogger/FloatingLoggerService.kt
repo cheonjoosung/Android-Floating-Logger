@@ -30,14 +30,12 @@ import kotlin.math.abs
 
 class FloatingLoggerService : Service() {
 
-
-    private val tag = javaClass.simpleName
-
     private lateinit var windowManager: WindowManager
 
     private lateinit var floatingView: View
     private lateinit var fab: FloatingActionButton
     private lateinit var floatingExpandLayout: ConstraintLayout
+    private lateinit var loggerTextView: TextView
 
     private lateinit var params: WindowManager.LayoutParams
 
@@ -51,7 +49,7 @@ class FloatingLoggerService : Service() {
     private val commandArray = mutableListOf("logcat", "-v", "time", "--pid=$pid")
     private val logcat: Process = Runtime.getRuntime().exec(commandArray.toTypedArray())
     private val br = BufferedReader(InputStreamReader(logcat.inputStream), 4 * 1024)
-    private val separator = System.getProperty("line.separator")
+    private val separator = System.lineSeparator()
 
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
@@ -62,6 +60,10 @@ class FloatingLoggerService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         initFloatingWindowView()
+
+        initCoroutine()
+
+        initFabTouchEvent()
 
         return super.onStartCommand(intent, flags, startId)
     }
@@ -96,7 +98,7 @@ class FloatingLoggerService : Service() {
         val minimizeImageButton = floatingView.findViewById<ImageButton>(R.id.minimizeImageButton)
         val clearImageButton = floatingView.findViewById<ImageButton>(R.id.clearImageButton)
         val closeImageButton = floatingView.findViewById<ImageButton>(R.id.closeImageButton)
-        val loggerTextView = floatingView.findViewById<TextView>(R.id.loggerTextView)
+        loggerTextView = floatingView.findViewById<TextView>(R.id.loggerTextView)
 
         minimizeImageButton.setOnClickListener {
             fabMinimize()
@@ -109,9 +111,9 @@ class FloatingLoggerService : Service() {
         closeImageButton.setOnClickListener {
             stopSelf()
         }
+    }
 
-        initFabTouchEvent()
-
+    private fun initCoroutine() {
         scope.launch {
             getData().collect { str ->
                 val handler = Handler(Looper.getMainLooper())
@@ -136,7 +138,6 @@ class FloatingLoggerService : Service() {
 
         var initialTouchX = 0.0f
         var initialTouchY = 0.0f
-
 
         fab.setOnTouchListener { _, motionEvent ->
             when (motionEvent.action) {

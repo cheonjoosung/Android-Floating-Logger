@@ -10,7 +10,7 @@
         android:id="@+id/floatingButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="floating"
+        android:contentDescription="@string/floating"
         android:src="@drawable/baseline_adb_24"
         android:theme="@style/Theme.MaterialComponents"
         app:backgroundTint="#FFC527"
@@ -38,7 +38,7 @@
                 android:layout_height="36dp"
                 android:background="@drawable/baseline_view_list_24"
                 android:backgroundTint="#ffffff"
-                android:contentDescription="목록"
+                android:contentDescription="@string/list"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -49,7 +49,7 @@
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/baseline_minimize_24"
                 android:backgroundTint="#ffffff"
-                android:contentDescription="minimize"
+                android:contentDescription="@string/minimize"
                 app:layout_constraintBottom_toBottomOf="@id/logSearchView"
                 app:layout_constraintEnd_toStartOf="@id/clearImageButton"
                 app:layout_constraintTop_toTopOf="@id/logSearchView" />
@@ -61,7 +61,7 @@
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/baseline_delete_24"
                 android:backgroundTint="#ffffff"
-                android:contentDescription="delete"
+                android:contentDescription="@string/delete"
                 app:layout_constraintBottom_toBottomOf="@id/logSearchView"
                 app:layout_constraintEnd_toStartOf="@id/closeImageButton"
                 app:layout_constraintTop_toTopOf="@id/logSearchView" />
@@ -72,7 +72,7 @@
                 android:layout_height="36dp"
                 android:background="@drawable/baseline_close_24"
                 android:backgroundTint="#ffffff"
-                android:contentDescription="exit"
+                android:contentDescription="@string/exit"
                 app:layout_constraintBottom_toBottomOf="@id/logSearchView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/logSearchView" />
@@ -87,11 +87,12 @@
                 <TextView
                     android:id="@+id/loggerTextView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
+                    android:minHeight="300dp"
                     android:padding="8dp"
                     android:textColor="#ffffff"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
             </ScrollView>
 
