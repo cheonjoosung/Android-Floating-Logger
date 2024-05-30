@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebView Console Log</title>
+    <script type="text/javascript">
+        function logToAndroid(message) {
+            // 안드로이드 인터페이스를 통해 로그 전송
+            Android.logMessage(message);
+            console.log(message);
+        }
+    </script>
+</head>
+<body>
+<h1>WebView Console Log Example</h1>
+<button onclick="logToAndroid('Hello from WebView!')">Log Message</button>
+</body>
+</html>
