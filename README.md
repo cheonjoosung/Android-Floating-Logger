@@ -26,8 +26,8 @@ dependencies {
 
 - 앱
 ```kotlin
-val logger = FloatingLogger()
-logger.init(this) // AppCompatActivity need when init
+val logger = FloatingLogger(this) // AppCompatActivity need
+logger.init() 
 ```
 
 ## Stack & Skill (스택 기술)

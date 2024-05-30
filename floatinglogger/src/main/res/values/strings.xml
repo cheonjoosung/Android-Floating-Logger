@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="floating">floating</string>
+    <string name="exit">exit</string>
+    <string name="delete">delete</string>
+    <string name="minimize">minimize</string>
+    <string name="list">list</string>
+</resources>
