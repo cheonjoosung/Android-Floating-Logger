@@ -13,8 +13,12 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.ArrayAdapter
 import android.widget.ImageButton
+import android.widget.ListView
+import android.widget.PopupWindow
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +40,7 @@ class FloatingLoggerService : Service() {
     private lateinit var fab: FloatingActionButton
     private lateinit var floatingExpandLayout: ConstraintLayout
     private lateinit var loggerTextView: TextView
+    private lateinit var logImageButton: ImageButton
 
     private lateinit var params: WindowManager.LayoutParams
 
@@ -54,6 +59,11 @@ class FloatingLoggerService : Service() {
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
+    private var tag = ""
+
+    private val tagList = listOf("All", "Network", "WebView")
+    private lateinit var popupWindow: PopupWindow
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -64,6 +74,8 @@ class FloatingLoggerService : Service() {
         initCoroutine()
 
         initFabTouchEvent()
+
+        initTagListPopupWindow()
 
         return super.onStartCommand(intent, flags, startId)
     }
@@ -95,10 +107,11 @@ class FloatingLoggerService : Service() {
 
         fab = floatingView.findViewById(R.id.floatingButton)
         floatingExpandLayout = floatingView.findViewById(R.id.floatingExpandLayout)
+        loggerTextView = floatingView.findViewById(R.id.loggerTextView)
+        logImageButton = floatingView.findViewById(R.id.logModeImageButton)
         val minimizeImageButton = floatingView.findViewById<ImageButton>(R.id.minimizeImageButton)
         val clearImageButton = floatingView.findViewById<ImageButton>(R.id.clearImageButton)
         val closeImageButton = floatingView.findViewById<ImageButton>(R.id.closeImageButton)
-        loggerTextView = floatingView.findViewById<TextView>(R.id.loggerTextView)
 
         minimizeImageButton.setOnClickListener {
             fabMinimize()
@@ -118,7 +131,16 @@ class FloatingLoggerService : Service() {
             getData().collect { str ->
                 val handler = Handler(Looper.getMainLooper())
                 handler.post {
-                    loggerTextView.append("\n$str")
+                    when (tag) {
+                        "" -> loggerTextView.append("\n$str")
+                        "network" -> {
+                            if (str.contains("okhttp", true)) loggerTextView.append("\n$str")
+                        }
+                        "webView" -> {
+                            if (str.contains("chromium", true)) loggerTextView.append("\n$str")
+                        }
+                        else -> loggerTextView.append("\n$str")
+                    }
                 }
             }
         }
@@ -253,6 +275,42 @@ class FloatingLoggerService : Service() {
             it.y = 100
         }
         windowManager.addView(floatingView, params)
+    }
+
+    private fun initTagListPopupWindow() {
+        // 팝업 윈도우의 레이아웃을 인플레이트합니다.
+        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupView = inflater.inflate(R.layout.popup_list, null)
+
+        // 팝업 윈도우를 설정합니다.
+        popupWindow = PopupWindow(popupView, 400, 450, true)
+
+        // 팝업 윈도우의 ListView 설정
+        val listView = popupView.findViewById<ListView>(R.id.listView)
+        val listAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, tagList)
+        listView.adapter = listAdapter
+
+        // ListView 아이템 클릭 리스너 설정
+        listView.setOnItemClickListener { _, _, position, _ ->
+            val selectedItem = tagList[position]
+            Toast.makeText(this, "Selected: $selectedItem", Toast.LENGTH_SHORT).show()
+            tag = when (selectedItem) {
+                "All" -> ""
+                "Network" -> "network"
+                "WebView" -> "webView"
+                else -> ""
+            }
+            popupWindow.dismiss() // 선택 후 팝업 윈도우 닫기
+        }
+
+        // ImageButton 클릭 시 팝업 윈도우 표시
+        logImageButton.setOnClickListener {
+            if (!popupWindow.isShowing) {
+                popupWindow.showAsDropDown(it, 0, 0)
+            } else {
+                popupWindow.dismiss()
+            }
+        }
     }
 
     override fun onDestroy() {
