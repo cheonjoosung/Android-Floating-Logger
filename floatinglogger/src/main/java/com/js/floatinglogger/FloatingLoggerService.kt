@@ -24,6 +24,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -64,17 +65,12 @@ class FloatingLoggerService : Service() {
     private val tagList = listOf("All", "Network", "WebView")
     private lateinit var popupWindow: PopupWindow
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         initFloatingWindowView()
-
         initCoroutine()
-
         initFabTouchEvent()
-
         initTagListPopupWindow()
 
         return super.onStartCommand(intent, flags, startId)
@@ -136,9 +132,11 @@ class FloatingLoggerService : Service() {
                         "network" -> {
                             if (str.contains("okhttp", true)) loggerTextView.append("\n$str")
                         }
+
                         "webView" -> {
                             if (str.contains("chromium", true)) loggerTextView.append("\n$str")
                         }
+
                         else -> loggerTextView.append("\n$str")
                     }
                 }
@@ -240,20 +238,7 @@ class FloatingLoggerService : Service() {
 
         fab.visibility = View.GONE
         floatingExpandLayout.visibility = View.VISIBLE
-
-        windowManager.removeView(floatingView)
-        params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            400.dp,
-            layoutFlag,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT
-        ).also {
-            it.gravity = Gravity.TOP or Gravity.END
-            it.x = 0
-            it.y = 100
-        }
-        windowManager.addView(floatingView, params)
+        updateViewLayoutParams(WindowManager.LayoutParams.MATCH_PARENT, 400.dp)
     }
 
     private fun fabMinimize() {
@@ -261,18 +246,24 @@ class FloatingLoggerService : Service() {
 
         fab.visibility = View.VISIBLE
         floatingExpandLayout.visibility = View.GONE
+        updateViewLayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+    }
 
+    private fun updateViewLayoutParams(width: Int, height: Int) {
         windowManager.removeView(floatingView)
         params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
+            width,
+            height,
             layoutFlag,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
-        ).also {
-            it.gravity = Gravity.TOP or Gravity.END
-            it.x = 0
-            it.y = 100
+        ).apply {
+            gravity = Gravity.TOP or Gravity.END
+            x = 0
+            y = 100
         }
         windowManager.addView(floatingView, params)
     }
@@ -316,8 +307,13 @@ class FloatingLoggerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        if (::floatingView.isInitialized)
+        if (::floatingView.isInitialized) {
             windowManager.removeView(floatingView)
+        }
+
+        scope.cancel() // 코루틴 작업 취소
+        br.close() // BufferedReader 닫기
+        logcat.destroy() // 로그캣 프로세스 종료
     }
 }
 
